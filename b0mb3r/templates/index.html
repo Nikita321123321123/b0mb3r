@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
+
+    <link href="/static/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/index.css" rel="stylesheet">
+    <link href="/static/intlTelInput.min.css" rel="stylesheet">
+    <title>b0mb3r 💣</title>
+</head>
+<body>
+<div id="block-ui">
+    <div id="loader"></div>
+</div>
+
+<main>
+    <h1 class="no-select">b0mb3r 💣</h1>
+    <p class="lead" id="sms">Доступно сервисов: <span
+            class="badge badge-pill badge-danger no-select">services_count</span></p>
+    <form id="phone-form" method="post">
+        <div class="form-row">
+            <div class="col">
+                <label for="phone"></label>
+                <input aria-describedby="phonesHelp" class="form-control" id="phone" name="phone"
+                       pattern="\d*" required type="number">
+            </div>
+
+            <div class="col">
+                <label for="count"></label>
+                <input class="form-control" id="count" min="1" name="number_of_cycles" placeholder="Повторы"
+                       required type="number" value="1">
+            </div>
+        </div>
+
+        <small class="form-text text-muted" id="phonesHelp"></small>
+        <button class="btn btn-danger btn-lg" type="submit">Начать атаку</button>
+    </form>
+</main>
+
+<footer class="mt-auto py-3 footer">
+    <span class="text-muted">Made by crinny with</span> <span class="heart">❤️</span>
+</footer>
+
+<script src="/static/intlTelInput.min.js"></script>
+
+<script type="text/javascript">
+    let input = document.querySelector('#phone');
+    let intltelinput;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        intltelinput = intlTelInput(input, {
+            onlyCountries: ['ru', 'ua', 'kz', 'by'],
+            initialCountry: 'ru',
+            separateDialCode: true,
+            utilsScript: '/static/utils.js',
+            autoPlaceholder: 'aggressive'
+        });
+    });
+
+    document.querySelector("#phone-form").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        document.querySelector('main').style.cssText = "animation: blur; animation-duration: 0.6s; animation-fill-mode: both";
+        document.querySelector('footer').style.cssText = "animation: blur; animation-duration: 0.6s; animation-fill-mode: both";
+        setTimeout(function () {
+            document.querySelector('#block-ui').style.display = "block";
+        }, 600);
+
+        let formData = new FormData(document.querySelector('#phone-form'));
+        formData.append('phone_code', intltelinput.getSelectedCountryData().dialCode);
+
+        let response = await fetch("/attack/start", {
+            method: 'POST',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            console.log(await response.text());
+        }
+
+        setTimeout(function () {
+            document.querySelector('#block-ui').style.display = "none";
+        }, 600);
+
+        document.querySelector('main').style.cssText = "animation: blur; animation-duration: 0.6s; animation-fill-mode: both; animation-direction: reverse";
+        document.querySelector('footer').style.cssText = "animation: blur; animation-duration: 0.6s; animation-fill-mode: both; animation-direction: reverse";
+    });
+</script>
+</body>
+</html>
